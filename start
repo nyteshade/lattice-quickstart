@@ -1,0 +1,131 @@
+#!/usr/bin/env node 
+
+const package = require('./package.json')
+const path = require('path')
+const base = path.resolve('.')
+const kKey = Symbol.for('babel-register-opts')
+const opts = (global[kKey] = {})
+const fs = require('fs')
+
+// Handle the annoying task of loading '.babelrc' and parsing it
+const babelrc = package.babel || {};
+const rcpath = path.join(base, '.babelrc');
+
+// Combine the file system .babelrc file contents with any from package.json 
+if (fs.existsSync(rcpath)) {
+  const buffer = fs.readFileSync(rcpath)
+  
+  try { 
+    let object = JSON.parse(buffer.toString())
+    Object.assign(babelrc, object);
+  }
+  catch (warn) { 
+    console.log(`No .babelrc file could be successfully loaded from ${rcpath}`)    
+  }
+}
+
+// Prepare the babel-register loader and registration
+Object.assign(opts, {
+  // Add a regular expression or glob (https://github.com/isaacs/minimatch)
+  // for each additional location you wish to transpile at runtime. 
+  only: [
+    new RegExp(`${base}(?!\/node_modules)`, "i")
+  ],
+
+  // Setting this to false will disable the cache.
+  cache: true
+});
+
+require('babel-polyfill')
+require('babel-register')(global[Symbol.for('babel-register-opts')])
+
+Object.assign(global, {
+  /**
+   * A global function that allows an easy path to register another glob or
+   * regular expression for babel transpilation during runtime. Note that 
+   * a call to `require('babel-register')(opts)` will be made with the updated 
+   * options after your path is appended.
+   *
+   * @method babelRegisterPath
+   * @global 
+   * 
+   * @param {string|RegExp} globOrRegExp either a string or a regular 
+   * expression denoting a happy path to source that should be transpiled 
+   * during runtime
+   */
+  babelRegisterPath(globOrRegExp) { 
+    opts.only.push(globOrRegExp)
+    require('babel-register')(global[Symbol.for('babel-register-opts')])
+  },
+  
+  /**
+   * Resets the paths to the default pattern; i.e. everything in your 
+   * project as long as it doesn't have `"/node_modules/"` in its path.
+   *
+   * @method babelRegisterResetPaths
+   * @global 
+   */
+  babelRegisterResetPaths() {
+    opts.only = [ new RegExp(`${base}(?!\/node_modules)`, "i") ]        
+    require('babel-register')(opts)
+  },
+  
+  /**
+   * A handy, dandy utility method that will return a resolved path from the 
+   * root of this project without having to `import path` in a subsequent 
+   * module nor combine `path.resolve` with `path.join`.
+   *
+   * @method fromRoot
+   * @global 
+   * 
+   * @param {Array<string>} paths an array of strings denoting path segments
+   * @return {string} a resolved and joined path relative to the project root 
+   */
+  fromRoot(...paths) {
+    return path.join(base, ...paths);
+  },
+
+  /**
+   * The project root path as a string; often a useful path to have around and 
+   * one that is more easily constructed when the project starts
+   *
+   * @type {string}
+   * @global
+   */
+  ROOT: base,
+  
+  /**
+   * The object contents of the `package.json` file. Often useful to have
+   * around and most easily obtained from the project root.
+   *
+   * @type {Object}
+   * @global
+   */
+  PACKAGE: require('./package.json'),
+  
+  /**
+   * Really annoying to read from disk in nodejs due to the naming convention,
+   * this object will contain a combination of the `"babel"` property in your 
+   * package.json and overwritten by any additional values found in a given
+   * `.babelrc` file in your project root.
+   *
+   * @type {Object}
+   * @global
+   */
+  BABELRC: babelrc,
+  
+  /**
+   * A regular expression match that compares the strings `'prod'` and 
+   * `'production'` in a case insenstive manner with the current `NODE_ENV`
+   * value. If true, you can probably assume that your code is intended to 
+   * be run in a production environment and take the appropriate and 
+   * associated actions.
+   *
+   * @type {boolean}
+   * @global
+   */
+  IS_PROD: /prod(uction)?/i.test(process.env.NODE_ENV)
+})
+
+// Start the server
+require('./src/setup')

@@ -1,0 +1,56 @@
+{
+  "name": "lattice-quickstart",
+  "version": "0.0.1",
+  "description": "A quick start ES6 server connected with graphql-lattice",
+  "license": "MIT",
+  "scripts": {
+    "start": "node ./start"
+  },
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-flow": "^6.23.0",
+    "babel-preset-react": "^6.24.1",
+    "body-parser": "~1.17.1",
+    "chalk": "^2.1.0",
+    "cookie-parser": "~1.4.3",
+    "express": "~4.15.2",
+    "flow-bin": "^0.54.1",
+    "graphql-lattice": "^2.7.3",
+    "mobx": "^3.3.0",
+    "morgan": "~1.8.1",
+    "serve-favicon": "~2.4.2",
+    "sprintf-js": "^1.1.1",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "jest": "^21.2.1"
+  },
+  "babel": {
+    "sourceMaps": "both",
+    "presets": [
+      "flow",
+      "react",
+      [
+        "env",
+        {
+          "targets": { "node": "current" },
+          "modules": "commonjs",
+          "useBuiltIns": false,
+          "debug": true,
+          "loose": false
+        }
+      ]
+    ],
+    "plugins": [
+      [ "transform-class-properties", { "spec": true } ],
+      "transform-runtime",
+      "transform-decorators-legacy"
+    ]
+  }
+}
