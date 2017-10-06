@@ -21,7 +21,7 @@
     "cookie-parser": "~1.4.3",
     "express": "~4.15.2",
     "flow-bin": "^0.54.1",
-    "graphql-lattice": "^2.7.3",
+    "graphql-lattice": "^2.9.2",
     "mobx": "^3.3.0",
     "morgan": "~1.8.1",
     "serve-favicon": "~2.4.2",
@@ -39,7 +39,9 @@
       [
         "env",
         {
-          "targets": { "node": "current" },
+          "targets": {
+            "node": "current"
+          },
           "modules": "commonjs",
           "useBuiltIns": false,
           "debug": true,
@@ -48,7 +50,12 @@
       ]
     ],
     "plugins": [
-      [ "transform-class-properties", { "spec": true } ],
+      [
+        "transform-class-properties",
+        {
+          "spec": true
+        }
+      ],
       "transform-runtime",
       "transform-decorators-legacy"
     ]

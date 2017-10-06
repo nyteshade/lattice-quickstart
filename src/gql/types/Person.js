@@ -1,6 +1,6 @@
 // @flow
 
-import { Schema, Properties, GQLBase } from 'graphql-lattice'
+import { Schema, Properties, GQLBase, resolver } from 'graphql-lattice'
 
 const names = [
   'Sally', 'Lucy', 'Ann', 'Lisa', 'Scarlet', 'Brielle', 'Kasia',
@@ -11,7 +11,6 @@ const jobs = [
   'Artist', 'Murdering Clown', 'Color Guard', 'Pizza Cook', 
   'Carpenter', 'Self declared Emperor'
 ]
-
 
 @Schema(`
   type Person {
@@ -26,6 +25,68 @@ const jobs = [
 `)
 @Properties('name', 'job')
 export class Person extends GQLBase {
+  
+  /**
+   * Example query resolver; finds a person with a given name. The name 
+   * itself doesn't matter for this example since we are not looking up 
+   * any data from a real data source.
+   * 
+   * When used with express-graphql, the requestData object has the format
+   * { req, res, gql } where
+   *   • req is an Express 4.x request object
+   *   • res is an Express 4.x response object
+   *   • gql is the graphQLParams object in the format of
+   *     { query, variables, operationName, raw }
+   *     See https://github.com/graphql/express-graphql for more info
+   *
+   * @method Person.findPerson 
+   *
+   * @param {Object} requestData this will contain data specific to the 
+   * request as sent by Express. Specifically it will be an object with 
+   * {req, res, gql}. See above for further details
+   * @param {Object} name through destructuring, the name property is
+   * extracted. GraphQL parameters are always sent as an object of name 
+   * value pairs.
+   */
+  @resolver 
+  findPerson(requestData, {name}) {
+    return new Person({
+      name,
+      job: jobs[parseInt(Math.random() * 1000, 10) % jobs.length]
+    })
+  }
+  
+  /**
+   * To demonstrate returning an array of a given type, the `allThePeople`
+   * query simply returns a random number of people generated with the 
+   * `findPerson` code.
+   *
+   * See `findPerson()` for more information on the requestData parameter 
+   * supplied to resolvers, mutators and subscriptors in graphql-lattice
+   *
+   * @method Person.findPerson 
+   *
+   * @param {Object} requestData this will contain data specific to the 
+   * request as sent by Express. Specifically it will be an object with 
+   * {req, res, gql}. See above for further details
+   */
+  @resolver 
+  allThePeople(requestData) {
+    let count = (parseInt(Math.random() * 1000, 10) % 14) + 1;
+    let peeps = [];
+    let list = [].concat(names)
+    
+    for (let i = 0; i < count; i++) {
+      let name = parseInt(Math.random() * list.length, 10)
+      let job = parseInt(Math.random() * 1000, 10) % jobs.length;
+      
+      peeps.push(new Person({name: list.splice(name, 1), job: jobs[job]}))
+      
+    }
+    
+    return peeps;
+  }
+  
   /**
    * This function returns an object describing the documentation for this 
    * type. It is later merged with the `buildSchema()` generated AST object. 
@@ -39,14 +100,9 @@ export class Person extends GQLBase {
     // easier to read in your source code.
     const {joinLines, DOC_CLASS, DOC_FIELDS, DOC_QUERIES} = this;
 
-    let dedent = (strings, ...substitutes) => substitutes.reduce(
-      (prev, cur, i) => `${prev}${cur}${strings[i + 1].replace(/^[ \t]*/gm, '')}`,
-      strings[0].replace(/^[ \t]*/gm, '')
-    )
-    
     return {
       // The comment describing the class itself
-      [DOC_CLASS]: dedent`
+      [DOC_CLASS]: joinLines`
         The PersonSample class is exactly that, a contrived example for 
         use with the server. It should be picked up auotmatically by the
         ModuleParser and be available in GraphiQL.
@@ -55,7 +111,8 @@ export class Person extends GQLBase {
         **bold** *italics* \`code\` 
         
         * etc
-        * etc
+          * etc
+            * etc
       `,
 
       // One entry for each field for the type described by this class
@@ -79,41 +136,5 @@ export class Person extends GQLBase {
         `
       }
     }
-  }    
-  
-  /**
-   * There should be one function for each query resolver in your schema for 
-   * this type. The descriptions can include as much or as little information 
-   * as you see fit.
-   *
-   * @method RESOLVERS
-   * @param {[type]} express [description]
-   * @return {Promise} [description]
-   */
-  static async RESOLVERS(express) {
-    return {
-      findPerson({name}) {
-        return new Person({
-          name,
-          job: jobs[parseInt(Math.random() * 1000, 10) % jobs.length]
-        })
-      },
-      
-      allThePeople() {
-        let count = (parseInt(Math.random() * 1000, 10) % 14) + 1;
-        let peeps = [];
-        let list = [].concat(names)
-        
-        for (let i = 0; i < count; i++) {
-          let name = parseInt(Math.random() * list.length, 10)
-          let job = parseInt(Math.random() * 1000, 10) % jobs.length;
-          
-          peeps.push(new Person({name: list.splice(name, 1), job: jobs[job]}))
-          
-        }
-        
-        return peeps;
-      }
-    }
-  }
+  }      
 }

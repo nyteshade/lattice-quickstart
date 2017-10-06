@@ -9,5 +9,6 @@ const lattice = new GQLExpressMiddleware(parser.parseSync())
 
 router.use('/graphql', lattice.middleware)
 router.use('/schema', lattice.schemaMiddleware)
+router.use('/ast', lattice.astMiddleware)
 
 export default router;
