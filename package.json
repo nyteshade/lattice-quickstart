@@ -56,8 +56,8 @@
           "spec": true
         }
       ],
-      "transform-runtime",
-      "transform-decorators-legacy"
+      "transform-decorators-legacy",
+      "transform-runtime"
     ]
   }
 }
