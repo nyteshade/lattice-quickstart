@@ -4,6 +4,7 @@ import logger from 'morgan'
 import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
 import graphql from './routes/graphql'
+import { ExpressErrorHandler } from './utils/ErrorHandlers'
 
 // setup Express instance to be configured
 const server = express();
@@ -26,14 +27,6 @@ server.use((req, res, next) => {
 });
 
 // error handler
-server.use((err, req, res, next) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+server.use(ExpressErrorHandler);
 
 export default server;

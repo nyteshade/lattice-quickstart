@@ -5,13 +5,13 @@
 
 
 /**
- * Ports can sometimes be specified as named pipes in macOS/UNIX land and as 
+ * Ports can sometimes be specified as named pipes in macOS/UNIX land and as
  * such, this function can determine which you are using.
  *
  * @method ErrorHandlers~validatePort
- * 
+ *
  * @param {string|number} port either the named port string or a port number
- * @return {string|number} a validated port number that has been ranged checked 
+ * @return {string|number} a validated port number that has been ranged checked
  * or a named port string.
  */
 function validatePort(
@@ -36,12 +36,12 @@ function validatePort(
 /**
  * A default Express and Express compatible error handler.
  *
- * @method ErrorHandlers~DefaultErrorHandler
- * 
+ * @method ErrorHandlers~SetupErrorHandler
+ *
  * @param {[type]} error [description]
  * @constructor
  */
-export function DefaultErrorHandler(type, error) {
+export function SetupErrorHandler(type, error) {
   if (error.syscall !== 'listen') {
     throw error;
   }
@@ -66,4 +66,25 @@ export function DefaultErrorHandler(type, error) {
   }
 }
 
-export default DefaultErrorHandler
+/**
+ * A typical Express middleware piece that is used when error is expected
+ * as the first parameter.
+ *
+ * @param {mixed} err an error thrown during normal Express usage
+ * @param {mixed} req an Express 4.x request object
+ * @param {mixed} res an Express 4.x response object
+ * @param {function} next a function to call, passed in when in use, that
+ * allows the users to move to the next handler if this one can no longer
+ * handle the request.
+ */
+export function ExpressErrorHandler(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+}
+
+export default SetupErrorHandler
