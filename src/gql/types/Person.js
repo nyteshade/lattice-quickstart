@@ -1,22 +1,13 @@
 // @flow
 
 import { Schema, Properties, GQLBase, resolver } from 'graphql-lattice'
+import { Job } from './Job'
 import { Randarray } from '../../utils/Randarray'
-
-const names = Randarray.from(
-  'Sally', 'Lucy', 'Ann', 'Lisa', 'Scarlet', 'Brielle', 'Kasia',
-  'David', 'Mark', 'Daniel', 'Brian', 'Steven', 'Jacob', 'Joe'
-)
-const jobs = Randarray.from(
-  'Wizard', 'Zombie Hunter', 'Fry-Cook', 'Mechanic', 'Programmer',
-  'Artist', 'Murdering Clown', 'Color Guard', 'Pizza Cook',
-  'Carpenter', 'Self declared Emperor'
-)
 
 @Schema(/* GraphQL */`
   type Person {
     name: String
-    job: String
+    job: Job
   }
 
   type Query {
@@ -24,7 +15,7 @@ const jobs = Randarray.from(
     allThePeople: [Person]
   }
 `)
-@Properties('name', 'job')
+@Properties('name', ['job', Job])
 export class Person extends GQLBase {
   /**
    * Example query resolver; finds a person with a given name. The name
@@ -50,11 +41,9 @@ export class Person extends GQLBase {
    */
   @resolver
   findPerson(requestData, {name}) {
-    let job = jobs.next;
+    let model = Person.randomModel(name)
 
-    jobs.reset();
-
-    return new Person({ name, job })
+    return new Person(model)
   }
 
   /**
@@ -73,21 +62,29 @@ export class Person extends GQLBase {
    */
   @resolver
   allThePeople(requestData) {
-    let count = (parseInt(Math.random() * 1000, 10) % 14) + 1;
+    let count = (parseInt(Math.random() * 1000, 10) % names.length) + 1;
     let peeps = [];
 
     for (let i = 0; i < count; i++) {
-      let name = names.next
-      let job = jobs.next
-
-      peeps.push(new Person({name, job}))
+      let model = Person.randomModel(null)
+      peeps.push(new Person(model))
     }
-
-    names.reset();
-    jobs.reset();
 
     return peeps;
   }
+
+  /**
+   * Generate a random Person model for demonstration versions
+   */
+  static randomModel(name) {
+    let model = {
+      name: (name || names.next),
+      job: Job.randomModel()
+    }
+
+    return model;
+  }
+
 
   /**
    * This function returns an object describing the documentation for this
@@ -140,3 +137,8 @@ export class Person extends GQLBase {
     }
   }
 }
+
+const names = Randarray.from(
+  'Sally', 'Lucy', 'Ann', 'Lisa', 'Scarlet', 'Brielle', 'Kasia',
+  'David', 'Mark', 'Daniel', 'Brian', 'Steven', 'Jacob', 'Joe'
+)
