@@ -20,7 +20,7 @@
     "body-parser": "~1.17.1",
     "chalk": "^2.1.0",
     "cookie-parser": "~1.4.3",
-    "express": "~4.15.2",
+    "express": "~4.17.1",
     "flow-bin": "^0.54.1",
     "graphql-lattice": "^2.9.2",
     "mobx": "^3.3.0",
