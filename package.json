@@ -22,7 +22,7 @@
     "cookie-parser": "~1.4.3",
     "express": "~4.15.2",
     "flow-bin": "^0.54.1",
-    "graphql-lattice": "^2.9.2",
+    "graphql-lattice": "^2.14.0",
     "mobx": "^3.3.0",
     "morgan": "~1.8.1",
     "ne-tag-fns": "^0.1.0",
