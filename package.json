@@ -24,7 +24,7 @@
     "flow-bin": "^0.54.1",
     "graphql-lattice": "^2.9.2",
     "mobx": "^3.3.0",
-    "morgan": "~1.8.1",
+    "morgan": "~1.10.1",
     "ne-tag-fns": "^0.1.0",
     "serve-favicon": "~2.4.2",
     "sprintf-js": "^1.1.1",
